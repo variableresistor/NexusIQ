@@ -66,8 +66,8 @@ filter Invoke-NexusIQAPI
 
 class NexusIQSettings
 {
-    static [String]$SaveDir = $(if ($env:OS -eq "Windows_NT") { "$env:APPDATA\PoshNexusIQ" } else { "$env:APPDATA/PoshNexusIQ" })
-    static [String]$SavePath = $(if ($env:OS -eq "Windows_NT") { "$([NexusIQSettings]::SaveDir)\Auth.xml" } else { "$([NexusIQSettings]::SaveDir)/Auth.xml" })
+    static [String]$SaveDir = "$env:APPDATA$([System.IO.Path]::DirectorySeparatorChar)PoshNexusIQ"
+    static [String]$SavePath = "$([NexusIQSettings]::SaveDir)$([System.IO.Path]::DirectorySeparatorChar)Auth.xml"
 
     # Parameters
     [String]$BaseUrl

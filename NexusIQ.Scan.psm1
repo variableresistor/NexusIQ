@@ -43,7 +43,7 @@ filter Invoke-NexusIQScan
     Get-NexusIQApplication -PublicId $PublicId | Out-Null
     Push-Location
     Set-Location $TargetDirectory
-    $ParamFileName = "$([NexusIQSettings]::SaveDir)\cli-params.txt"
+    $ParamFileName = "$([NexusIQSettings]::SaveDir)$([System.IO.Path]::DirectorySeparatorChar)cli-params.txt"
     @"
 --application-id
 $PublicId
@@ -56,7 +56,7 @@ $Target
 
     if ($Platform -eq "Cross-Platform")
     {
-        $Java = "$env:ProgramFiles\Microsoft\jdk-11.0.12.7-hotspot\bin\java.exe"
+        $Java = "$env:ProgramFiles$([System.IO.Path]::DirectorySeparatorChar)Microsoft$([System.IO.Path]::DirectorySeparatorChar)jdk-11.0.12.7-hotspot$([System.IO.Path]::DirectorySeparatorChar)bin$([System.IO.Path]::DirectorySeparatorChar)java.exe"
         if (-not (Test-Path $Java)) { $Java = "java" }
         . "$Java" -jar "$CliPath"--authentication "$($Settings.Credential.Username)`:$($Settings.Credential.GetNetworkCredential().Password)" @$ParamFileName
     }
@@ -88,7 +88,7 @@ filter Save-NexusIQCli
         Mac     = "nexus-iq-cli"
         "Cross-Platform" = "nexus-iq-cli-$Version.jar" -replace "\+.*\.jar",".jar"
     }
-    $CliPath = $(if ($env:OS -eq "Windows_NT") { "$([NexusIQSettings]::SaveDir)\$($CliName.Item($Platform))" } else { "$([NexusIQSettings]::SaveDir)/$($CliName.Item($Platform))"})
+    $CliPath = "$([NexusIQSettings]::SaveDir)$([System.IO.Path]::DirectorySeparatorChar)$($CliName.Item($Platform))"
     if (-not (Test-Path $CliPath))
     {
         Write-Verbose "CLI tool wasn't found '$CliPath'. Downloading..."
@@ -111,7 +111,7 @@ filter Save-NexusIQCli
             $WebClient.Proxy = New-Object Net.WebProxy($DefaultProxy.GetProxy($Url).OriginalString, $true)
             $WebClient.Proxy.UseDefaultCredentials = $true
         }
-        $ArchivePath = $(if ($env:OS -eq "Windows_NT") { "$env:TEMP\$([System.IO.Path]::GetFileName($Links.Item($Platform)))"} else { "$env:TEMP/$([System.IO.Path]::GetFileName($Links.Item($Platform)))" })
+        $ArchivePath = "$env:TEMP$([System.IO.Path]::DirectorySeparatorChar)$([System.IO.Path]::GetFileName($Links.Item($Platform)))"
         Write-Verbose "Downloading package using URL '$Url'"
         $WebClient.DownloadFile($Url, $ArchivePath)
         switch ([System.IO.Path]::GetExtension($ArchivePath))
