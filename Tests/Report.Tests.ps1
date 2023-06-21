@@ -1,12 +1,11 @@
 [CmdletBinding()]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', '',
     Justification='Suppress false positives in Pester code blocks')]
-param (
-    [ValidateNotNullOrEmpty()]
-    [string]$AppId = "MyAppId"
-)
+param ()
+
 BeforeAll {
-    Import-Module "$(Split-Path $PSScriptRoot)\NexusIQ.psd1"
+    Import-Module "$(Split-Path $PSScriptRoot)$([System.IO.Path]::DirectorySeparatorChar)NexusIQ.psd1"
+    $AppId = "MyAppId"
 }
 
 Describe "Get-NexusIQReport" {

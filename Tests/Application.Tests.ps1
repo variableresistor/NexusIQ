@@ -1,30 +1,17 @@
 [CmdletBinding()]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', '',
     Justification='Suppress false positives in Pester code blocks')]
-param (
-    [ValidateNotNullOrEmpty()]
-    [string]$AppId = "MyAppId",
-    
-    [ValidateNotNullOrEmpty()]
-    [string]$AppName = "My Wonderful app",
-    
-    [ValidateNotNullOrEmpty()]
-    [string]$TempAppId = "MyAppTempId",
-    
-    [ValidateNotNullOrEmpty()]
-    [string]$TempAppName = "My temporary app",
+param ()
 
-    [ValidateNotNullOrEmpty()]
-    [string]$AppId2 = "MyApp2",
-
-    [ValidateNotNullOrEmpty()]
-    [string]$AppName2 = "My 2nd wonderful app",
-
-    [ValidateNotNullOrEmpty()]
-    [string]$OrganizationName = "Org1"
-)
 BeforeAll {
-    Import-Module "$(Split-Path $PSScriptRoot)\NexusIQ.psd1"
+    Import-Module "$(Split-Path $PSScriptRoot)$([System.IO.Path]::DirectorySeparatorChar)NexusIQ.psd1"
+    $AppId = "MyAppId"
+    $AppName = "My Wonderful app"
+    $TempAppId = "MyAppTempId"
+    $TempAppName = "My temporary app"
+    $AppId2 = "MyApp2"
+    $AppName2 = "My 2nd wonderful app"
+    $OrganizationName = "Org1"
 }
 
 Describe "Get-NexusIQApplication" {

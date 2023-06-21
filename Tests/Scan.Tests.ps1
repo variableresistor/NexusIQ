@@ -2,8 +2,9 @@
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', '',
     Justification='Suppress false positives in Pester code blocks')]
 param ()
+
 BeforeAll {
-    Import-Module "$(Split-Path $PSScriptRoot)\NexusIQ.Scan.psm1"
+    Import-Module "$(Split-Path $PSScriptRoot)$([System.IO.Path]::DirectorySeparatorChar)NexusIQ.Scan.psm1"
 }
 
 Describe "Save-NexusIQCli" {
@@ -14,8 +15,8 @@ Describe "Save-NexusIQCli" {
             Mac     = "nexus-iq-cli"
         }
         $Platform = "Windows"
-        $SaveDir = $(if ($env:OS -eq "Windows_NT") { "$env:APPDATA\PoshNexusIQ" } else { "$env:APPDATA/PoshNexusIQ" })
-        $CliPath = $(if ($env:OS -eq "Window_NT") { "$SaveDir\$($CliName.Item($Platform))" } else { "$SaveDir/$($CliName.Item($Platform))"})
+        $SaveDir = "$env:APPDATA$([System.IO.Path]::DirectorySeparatorChar)PoshNexusIQ"
+        $CliPath = "$SaveDir$([System.IO.Path]::DirectorySeparatorChar)$($CliName.Item($Platform))"
 
         if (Test-Path $CliPath) { Remove-Item $CliPath }
     }

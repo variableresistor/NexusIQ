@@ -1,15 +1,12 @@
 [CmdletBinding()]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', '',
     Justification='Suppress false positives in Pester code blocks')]
-param (
-    [ValidateNotNullOrEmpty()]
-    [guid]$OrgId = (New-Guid),
+param ()
 
-    [ValidateNotNullOrEmpty()]
-    [string]$OrganizationName = "MyOrg"
-)
 BeforeAll {
-    Import-Module "$(Split-Path $PSScriptRoot)\NexusIQ.psd1"
+    Import-Module "$(Split-Path $PSScriptRoot)$([System.IO.Path]::DirectorySeparatorChar)NexusIQ.psd1"
+    $OrgId = New-Guid
+    $OrganizationName = "MyOrg"
 }
 
 Describe "Get-NexusIQOrganization" {

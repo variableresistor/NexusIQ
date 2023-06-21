@@ -1,38 +1,35 @@
 [CmdletBinding()]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', '',
     Justification='Suppress false positives in Pester code blocks')]
-param (
-    [ValidateNotNullOrEmpty()]
-    [string]$AppName = "MyAppId",
+param ()
 
-    [ValidateNotNullOrEmpty()]
-    [string]$OrganizationName = "Org1"
-)
 BeforeAll {
-    Import-Module "$(Split-Path $PSScriptRoot)\NexusIQ.psd1"
+    Import-Module "$(Split-Path $PSScriptRoot)$([System.IO.Path]::DirectorySeparatorChar)NexusIQ.psd1"
+    $AppName = "MyAppId"
+    $OrganizationName = "Org1"
 }
 
 Describe "Get-NexusIQPolicy" {
     It "Retrieves all policies" {
         $AllPolicies = Get-NexusIQPolicy
-        $AllPolicies | Where-Object -Property ownerType -EQ "ORGANIZATION" | Should -Not -BeNullOrEmpty -Because "It retrieves organization policies"
-        $AllPolicies | Where-Object -Property ownerType -EQ "APPLICATION" | Should -Not -BeNullOrEmpty -Because "It retrieves application policies"
-        $AllPolicies | Where-Object -Property ownerType -EQ "ROOT_ORGANIZATION_ID" | Should -Not -BeNullOrEmpty -Because "It retrieves policies configured at the root"
+        $AllPolicies | Should -Not -BeNullOrEmpty
+        "ORGANIZATION" | Should -BeIn $AllPolicies.ownerType -Because "It retrieves organization policies"
+        "APPLICATION" | Should -BeIn $AllPolicies.ownerType -Because "It retrieves application policies"
+        "ROOT_ORGANIZATION_ID" | Should -BeIn $AllPolicies.ownerId -Because "It retrieves policies configured at the root"
     }
     It "Retrieves policies by Organization name" {
-        $Organization = Get-NexusIQOrganization -Name $OrgName
-        $Policies = Get-NexusIQPolicy -OrganizationName $Organization.name
-        $Policies | Where-Object -Property ownerType -EQ "ORGANIZATION" | Should -Not -BeNullOrEmpty -Because "It returns at least 1 organization policy"
-        $Policies | Where-Object -Property ownerType -EQ "APPLICATION" |-BeNullOrEmpty -Because "It filters out inherited application policies"
-        $Policies | Where-Object -Property ownerType -EQ "ROOT_ORGANIZATION_ID" | Should -BeNullOrEmpty -Because "It filters out inherited root policies"
-        $Policies[0].id | Should -Be $Organization.id
-        $Organization.id | Should -BeIn $Policies.id
+        $Organization = Get-NexusIQOrganization -Name $OrganizationName
+        $Policies = Get-NexusIQPolicy -Type Organization -Name $Organization.name
+        "ORGANIZATION" | Should -BeIn $Policies.ownerType -Because "It returns at least 1 organization policy"
+        "APPLICATION" | Should -Not -BeIn $Policies.ownerType -Because "It filters out inherited application policies"
+        "ROOT_ORGANIZATION_ID" | Should -Not -BeIn $Policies.ownerId -Because "It filters out inherited root policies"
+        $Policies[0].ownerId | Should -Be $Organization.id
     }
     It "Retrieves policies by Application name" {
         $Application = Get-NexusIQApplication -Name $AppName
-        $Policies = Get-NexusIQPolicy -ApplicationName $AppName
-        $Policies | Where-Object -Property ownerType -EQ "ORGANIZATION" | Should -BeNullOrEmpty -Because "It filters out inherited organization policies"
-        $Policies | Where-Object -Property ownerType -EQ "APPLICATION" | Should -Not -BeNullOrEmpty -Because "It returns at least 1 application policy"
-        $Policies | Where-Object -Property ownerType -EQ "ROOT_ORGANIZATION_ID" | Should -BeNullOrEmpty -Because "It filters out inherited root policies"
+        $Policies = Get-NexusIQPolicy -Type Application -Name $AppName
+        "ORGANIZATION" | Should -Not -BeIn $Policies.ownerType -Because "It filters out inherited organization policies"
+        "APPLICATION" | Should -BeIn $Policies.ownerType -Because "It returns at least 1 application policy"
+        "ROOT_ORGANIZATION_ID" | Should -Not -BeIn $Policies.ownerId -Because "It filters out inherited root policies"
     }
 }
