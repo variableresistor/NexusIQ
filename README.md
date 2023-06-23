@@ -14,7 +14,7 @@ Install-Module -Name hNexusIQ -Scope CurrentUser
 ## Authentication
 The module provides machine / user encrypted persistance between sessions. Instructions on generating your API token here: [User Token REST API - v2](https://help.sonatype.com/iqserver/automating/rest-apis/user-token-rest-api---v2) and run
 ```powershell
-Login-NexusIQ -BaseUrl https://nexusiq.mycompany.com
+Connect-NexusIQ -BaseUrl https://nexusiq.mycompany.com
 ```
 
 Alternatively, generate the token through the web UI by logging in with a username and password (not SSO), then select "Manage User Token".
@@ -31,4 +31,4 @@ It's not really fleshed out yet, but a few things that need to be done to develo
 * Change the parameters in all the Pester test files to some arbitrary values
 * Import the .\Pase.psm1 before trying to troubleshoot your contribution. This is so the module files can be
 organized neatly into separate files.
-* Use Login-NexusIQ to point to your local Nexus IQ instance
+* Use Connect-NexusIQ to point to your local Nexus IQ instance

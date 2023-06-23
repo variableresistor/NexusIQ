@@ -15,7 +15,7 @@ filter Get-NexusIQSettings
     }
     else
     {
-        throw "Use Login-NexusIQ to create a login profile"
+        throw "Use Connect-NexusIQ to create a login profile"
     }
 }
 
@@ -33,19 +33,18 @@ filter Get-NexusIQSettings
 .EXAMPLE
     # Reuse an existing profile's base URL and change the credentials
     $Settings = Get-SonarQubeSettings
-    $Settings | Login-NexusIQ -Credential (Get-Credential)
+    $Settings | Connect-NexusIQ -Credential (Get-Credential)
 #>
-filter Save-NexusIQLogin
+filter Connect-NexusIQ
 {
     [CmdletBinding()]
-    [Alias("Login-NexusIQ","New-NexusIQLogin")]
+    [Alias("Login-NexusIQ","Save-NexusIQLogin")]
     param (
-        [Parameter(ValueFromPipeline)]
-        [ValidateNotNullOrEmpty()]
-        [PSCredential]$Credential = (Get-Credential -Message "Enter the Usercode and Passcode generated from Nexus IQ"),
-
-        [Parameter(Mandatory,ValueFromPipeline)]
+        [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
         [string]$BaseUrl,
+
+        [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
+        [PSCredential]$Credential,
 
         [Parameter(ValueFromPipeline)]
         [NexusIQAPIVersion]$APIVersion = "V2"
@@ -55,8 +54,21 @@ filter Save-NexusIQLogin
 
     $Settings = [NexusIQSettings]::new($Credential,$BaseUrl,$APIVersion)
     $Settings | Export-CliXml -Path ([NexusIQSettings]::SavePath) -Encoding 'utf8' -Force
-    # -not (Test-NexusIQLogin) ? (Write-Warning "Something went wrong and the token entered wasn't able to authenticate to $($Settings.BaseUrl).") : (Write-Verbose "Login was successful")
     $Settings
+}
+
+<#
+.SYNOPSIS
+    Removes the user's login profile
+.EXAMPLE
+    Disconnect-NexusIQ
+#>
+filter Disconnect-NexusIQ
+{
+    [CmdletBinding()]
+    [Alias("Logout-NexusIQ","Remove-NexusIQLogin")]
+    param ()
+    Remove-Item [NexusIQSettings]::SaveDir -Recurse
 }
 
 <#

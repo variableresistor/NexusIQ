@@ -14,8 +14,9 @@ RequiredAssemblies = @("System.IO.Compression.FileSystem")
 # FormatsToProcess = @()
 NestedModules = @("NexusIQ.Application","NexusIQ.Authentication","NexusIQ.Organization","NexusIQ.Report","NexusIQ.Scan")
 FunctionsToExport = @(
+    "Connect-NexusIQ"
+    "Disconnect-NexusIQ"
     "Get-NexusIQSettings"
-    "Save-NexusIQLogin"
     "Test-NexusIQLogin"
     "Get-NexusIQApplication"
     "Get-NexusIQReport"
@@ -31,7 +32,9 @@ CmdletsToExport = @()
 # VariablesToExport = '*'
 AliasesToExport = @(
     "Login-NexusIQ"
-    "New-NexusIQLogin"
+    "Logout-NexusIQ"
+    "Save-NexusIQLogin"
+    "Remove-NexusIQLogin"
 )
 # ModuleList = @()
 PrivateData = @{

@@ -4,43 +4,67 @@
 param ()
 
 BeforeAll {
-    Import-Module "$(Split-Path $PSScriptRoot)$([System.IO.Path]::DirectorySeparatorChar)NexusIQ.psd1"
-    $BaseUrl = "https://nexusiq.myorg.com"
+    Import-Module (Split-Path $PSScriptRoot) -Force
+    $Separator = [System.IO.Path]::DirectorySeparatorChar
+    $SaveDir = "$env:APPDATA$Separator`PoshNexusIQ"
+    $AuthXmlPath = "$SaveDir$Separator`Auth.xml"
 
-    if (-not (Test-Path -Path "$env:USERPROFILE$([System.IO.Path]::DirectorySeparatorChar).PoshNexusIQ$([System.IO.Path]::DirectorySeparatorChar)Auth.xml"))
+    [uri]$BaseUrl = "https://nexusiq.myorg.com"
+
+    if (-not (Test-Path -Path $AuthXmlPath))
     {
-        Save-NexusIQLogin -BaseUrl $BaseUrl -APIVersion v2 | Out-Null
+        Connect-NexusIQ -BaseUrl $BaseUrl -APIVersion v2 | Out-Null
     }
+    $Settings = Import-Clixml -Path $AuthXmlPath
 }
 
-Describe "Save-NexusIQLogin" {
+Describe "Login-NexusIQ or Save-NexusIQLogin" {
     BeforeEach {
-        $Script:Settings = Import-Clixml -Path "$env:USERPROFILE$([System.IO.Path]::DirectorySeparatorChar).PoshNexusIQ$([System.IO.Path]::DirectorySeparatorChar)Auth.xml"
-        Remove-Item "$env:USERPROFILE\.PoshNexusIQ" -Recurse
+        if (Test-Path $AuthXmlPath) { Remove-Item $SaveDir -Recurse }
     }
     It "Saves their profile info" {
-        $Result = Save-NexusIQLogin -Credential $Settings.Credential -BaseUrl $Settings.BaseUrl -APIVersion $Settings.APIVersion
-        "$env:USERPROFILE$([System.IO.Path]::DirectorySeparatorChar).PoshNexusIQ$([System.IO.Path]::DirectorySeparatorChar)Auth.xml" | Should -Exist
+        $Result = Connect-NexusIQ -Credential $Settings.Credential -BaseUrl $Settings.BaseUrl -APIVersion $Settings.APIVersion
+        $AuthXmlPath | Should -Exist
         $Result.Credential | Should -Not -BeNullOrEmpty
         $Result.Credential.UserName | Should -Be $Settings.Credential.UserName
         $Result.APIVersion | Should -Be $Settings.APIVersion
     }
-    AfterEach {
-        if (-not (Test-Path "$env:USERPROFILE\.PoshNexusIQ"))
-        {
-            New-Item -Path "$env:USERPROFILE\.PoshNexusIQ" -ItemType Directory | Out-Null
-        }
-        $Script:Settings | Export-Clixml -Path "$env:USERPROFILE$([System.IO.Path]::DirectorySeparatorChar).PoshNexusIQ\Auth.xml" -Force
+    It "Saves their profile info by passing a credential from the pipeline" {
+        $Result = $Settings | Connect-NexusIQ -BaseUrl $Settings.BaseUrl -APIVersion $Settings.APIVersion
+        $AuthXmlPath | Should -Exist
+        $Result.Credential | Should -Not -BeNullOrEmpty
+        $Result.Credential.UserName | Should -Be $Settings.Credential.UserName
+        $Result.APIVersion | Should -Be $Settings.APIVersion
     }
+
+    AfterEach {
+        if (-not (Test-Path $SaveDir))
+        {
+            New-Item -Path $SaveDir -ItemType Directory | Out-Null
+        }
+        $Settings | Export-Clixml -Path $AuthXmlPath
+    }    
+}
+
+Describe "Disconnect-NexusIQ or Remove-NexusIQLogin" {
+    It "Removes their login information from disk" {
+        Disconnect-NexusIQ
+        $AuthXmlPath | Should -Not -Exist
+    }
+
+    AfterEach {
+        if (-not (Test-Path $SaveDir))
+        {
+            New-Item -Path $SaveDir -ItemType Directory | Out-Null
+        }
+        $Settings | Export-Clixml -Path $AuthXmlPath
+    }    
 }
 
 Describe "Get-NexusIQSettings" {
-    BeforeAll {
-        $Script:Settings = Get-NexusIQSettings
-    }
     It "Returns their profile info" {
         $Settings | Should -Not -BeNullOrEmpty
-        $Settings.APIVersion | Should -Be "v2"
+        $Settings.APIVersion.ToString() | Should -Be "v2"
         $Settings.BaseUrl | Should -Be $BaseUrl
         $Settings.Credential | Should -BeOfType PSCredential
     }

@@ -4,7 +4,7 @@
 param ()
 
 BeforeAll {
-    Import-Module "$(Split-Path $PSScriptRoot)$([System.IO.Path]::DirectorySeparatorChar)NexusIQ.Scan.psm1"
+    Import-Module (Split-Path $PSScriptRoot) -Force
 }
 
 Describe "Save-NexusIQCli" {
