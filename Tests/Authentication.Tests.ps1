@@ -18,7 +18,7 @@ BeforeAll {
     $Settings = Import-Clixml -Path $AuthXmlPath
 }
 
-Describe "Login-NexusIQ or Save-NexusIQLogin" {
+Describe "Connect-NexusIQ or Save-NexusIQLogin" {
     BeforeEach {
         if (Test-Path $AuthXmlPath) { Remove-Item $SaveDir -Recurse }
     }
@@ -28,6 +28,7 @@ Describe "Login-NexusIQ or Save-NexusIQLogin" {
         $Result.Credential | Should -Not -BeNullOrEmpty
         $Result.Credential.UserName | Should -Be $Settings.Credential.UserName
         $Result.APIVersion | Should -Be $Settings.APIVersion
+        $Result | Should -HaveCount 1
     }
     It "Saves their profile info by passing a credential from the pipeline" {
         $Result = $Settings | Connect-NexusIQ -BaseUrl $Settings.BaseUrl -APIVersion $Settings.APIVersion

@@ -49,7 +49,7 @@ filter Connect-NexusIQ
         [Parameter(ValueFromPipeline)]
         [NexusIQAPIVersion]$APIVersion = "V2"
     )
-    if (-not (Test-Path([NexusIQSettings]::SaveDir))) { New-Item -Type Directory -Path ([NexusIQSettings]::SaveDir) }
+    if (-not (Test-Path([NexusIQSettings]::SaveDir))) { New-Item -Type Directory -Path ([NexusIQSettings]::SaveDir) | Out-Null }
     else { Write-Verbose "Profile folder already existed" }
 
     $Settings = [NexusIQSettings]::new($Credential,$BaseUrl,$APIVersion)
