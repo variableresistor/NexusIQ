@@ -31,15 +31,15 @@ filter Find-NexusIQApplication
 #>
 filter Get-NexusIQApplication
 {
-    [CmdletBinding(DefaultParameterSetName="App Id parameter set")]
+    [CmdletBinding(DefaultParameterSetName="Id")]
     param (
         # This is the application ID for the application. In the IQ Server GUI this is represented by the "Application" field. It must be unique., i.e. publicId
-        [Parameter(Mandatory,ParameterSetName="App Id parameter set",ValueFromPipeline,ValueFromPipelineByPropertyName)]
+        [Parameter(Mandatory,ParameterSetName="Id",ValueFromPipeline,ValueFromPipelineByPropertyName)]
         [Alias("ApplicationId")]
         [string[]]$PublicId,
 
         # This is the name of the application. In the IQ Server GUI this corresponds to the "Application Name" field. It must be unique.
-        [Parameter(Mandatory,ParameterSetName="App Name parameter set")]
+        [Parameter(Mandatory,ParameterSetName="Name",Position=0)]
         [SupportsWildcards()]
         [string[]]$Name
     )

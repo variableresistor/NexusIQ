@@ -32,4 +32,8 @@ Describe "Get-NexusIQOrganization" {
         $Org.id.Length | Should -Be 32
         $Org.name | Should -Be $OrganizationName
     }
+    It "Allows the user to pass the name parameter positionally" {
+        $Org = Get-NexusIQOrganization $OrganizationName 
+        $Org | Should -Not -BeNullOrEmpty
+    }
 }

@@ -51,6 +51,11 @@ Describe "Get-NexusIQApplication" {
             $Result | Should -HaveCount 1
             $Result.publicId | Should -Be $AppId
         }
+
+        It "Can allow the user to not specific a named parameter" {
+            $Result = Get-NexusIQApplication $AppName
+            $Result | Should -Not -BeNullOrEmpty
+        }
     }
 }
 

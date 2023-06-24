@@ -14,7 +14,7 @@ filter Get-NexusIQOrganization
     [CmdletBinding(DefaultParameterSetName="Id")]
     param (
         # Name of the organization
-        [Parameter(ParameterSetName="Name",ValueFromPipeline)]
+        [Parameter(ParameterSetName="Name",ValueFromPipeline,Position=0)]
         [string[]]$Name,
         
         # Id of the organization
