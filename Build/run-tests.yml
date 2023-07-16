@@ -1,0 +1,79 @@
+# Runs Pester tests
+parameters:
+  - name: ModuleName
+    type: string
+    displayName: Name of the PowerShell module to publish
+  - name: MinimumPesterVersion
+    type: string
+    default: 5.3.3
+
+steps:
+  - pwsh: |
+      $AllPesterModules = Get-Module Pester -ListAvailable
+      $LatestPesterMdule = $AllPesterModules | Sort-Object -Property Version -Desc | Select-Object -First 1
+      if (-not $LatestPesterModule -or $LatestPesterModule.Version -lt $env:MinimumVersion)
+      {
+        Install-Module Pester -Repository PSGallery -Scope CurrentUser -AllowClobber -SkipPublisherCheck -MinimumVersion $env:MinimumVersion -Force -Verbose
+      }
+      else
+      {
+        $AllPesterModules
+        "Pester was up-to-date"
+      }
+    displayName: 'Install Pester V${{parameters.MinimumPesterVersion}}+'
+    env:
+      MinimumVersion: ${{parameters.MinimumPesterVersion}}
+
+  - pwsh: |
+      Import-Module ./$env:ModuleName.psd1
+
+      $ResultsFolder = New-Item -Path $env:Agent_TempDirectory -Name Pester ItemType Directory
+
+      Import-Module -Name Pester -MinimumVersion $env:MinimumVersion
+      $Config = New-PesterConfiguration
+      $Config.CodeCoverage.Enabled = $true
+      $Config.CodeCoverage.Path = @('./*.psm1')
+      $Config.CodeCoverage.OutputPath = "$($ResultsFolder.FullName)/coverage.xml"
+      $Config.CodeCoverage.OutputFormat = 'JaCoCo'
+      $Config.Run.Exit = $true
+      $Config.TestResult.Enabled = $true
+      $Config.TestResult.OutputPath = "$($ResultsFolder.FullName)/test-results.xml"
+      $Config.TestResult.OutputFormat = 'NUnitXml'
+      $Config.Output.CIFormat = 'AzureDevOps'
+      $Splat = @{
+        InformationAction = "Continue"
+        Verbose           = $true
+        Configuration     = $Config
+      }
+
+      Invoke-Pester @Splat
+    displayName: 'Run Pester Tests'
+    env:
+      ModuleName:
+      MinimumVersion: ${{parameters.MinimumPesterVersion}}
+
+  - task: PublishTestResults@2
+    displayName: 'Publish Test Results'
+    inputs:
+      testRunTitle: 'Test Results for ${{parameters.ModuleName}}'
+      testRunner: NUnit
+      testResultsFiles: '$(Agent.TempDirectory)/Pester/test-results.xml'
+      failTaskOnFailedTests: true
+      mergeTestResults: true
+
+  - task: reportgenerator@5
+    displayName: 'Consolidate code coverage reports into custom formats'
+    inputs:
+      reports: '$(Agent.TempDirectory)/**/coverage.cml'
+      targetdir: '$(Agent.TempDirectory)/reports'
+      reporttypes: 'Covertura;HtmlInline_AzurePipelines'
+
+  - task: PublishCodeCoverageResults@1
+    displayName: 'Publish Code Coverage to Azure DevOps'
+    inputs:
+      codeCoverageTool: Cobertura
+      summaryFileLocation: '$(Agent.TempDirectory)/reports/Cobertura.xml'
+      reportDirectory: '$(Agent.TempDirectory)/reports'
+      pathToSources: '$(Pipeline.Workspace)/${{parameters.ModuleName}}'
+    env:
+      DISABLE_COVERAGE_AUTOGENERATE: 'true'

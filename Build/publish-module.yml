@@ -1,0 +1,24 @@
+# Publishes a PowerShell module to the PowerShell Gallery
+parameters:
+  - name: ModuleName
+    type: string
+    displayName: Name of the module to publish
+
+steps:
+  - pwsh: |
+      (Get-Content "./$env:ModuleName.psd1") -replace "ModuleVersion = '.*'","ModuleVersion = '$env:Version'" |
+      Set-Content -Path "./$env:ModuleName.psd1" -PassThru
+      if (Get-Module -Name $env:ModuleName -ListAvailable)
+      {
+        Remove-Module -Name $env:ModuleName -ErrorAction SilentlyContinue
+        Uninstall-Module -Name $env:ModuleName -AllVersion -Verbose
+      }
+      $env:ModulePath += ";$env:Pipeline_Workspace"
+      Import-Module $env:ModuleName -Verbose -RequiredVersion $env:Version
+
+      Publish-Module -Name $env:ModuleName -Repository PSGallery -NuGetApiKey $(NuGetApiKey) -Verbose
+    displayName: 'Publish the module'
+    workingDirectory: $(Pipeline.Workspace)/${{parameters.ModuleName}}
+    env:
+      Version: $(Build.BuildNumber)
+      ModuleName: ${{parameters.ModuleName}}
