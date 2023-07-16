@@ -48,5 +48,5 @@ steps:
       (Get-Content $ManifestFile) -replace "NestedModules\s\=\s@\(.*\)","NestedModules = @()" |
       Set-Content -Path $ManifestFile
       $ModuleFiles | Remove-Item -Verbose
-    workingDirectory: $(Pipeline.Workspace)/${{parameters.ModuleName}}
+    workingDirectory: $(Pipeline.Workspace)/${{variables.ModuleName}}
     displayName: Consolidate the module files
