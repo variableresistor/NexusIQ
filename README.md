@@ -5,7 +5,7 @@ PowerShell module to interact with the Nexus IQ REST API. Essentially a wrapper 
 Run the following command in PowerShell session to install the module from the PowerShell Gallery. If following the instructions above, the below command should not require elevation.
 
 ```powershell
-Install-Module -Name hNexusIQ -Scope CurrentUser
+Install-Module -Name NexusIQ -Scope CurrentUser
 ```
 
 ## Authentication
@@ -112,6 +112,11 @@ I'd also recommend changing your Visual Studio Code settings to  move the second
             ]
         }
     },
+
+    // Other
+    "files.associations": {
+        "*.yml": "azure-pipelines"
+    }
 }
 
 ```

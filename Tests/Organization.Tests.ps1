@@ -4,7 +4,7 @@
 param ()
 
 BeforeAll {
-    Import-Module (Split-Path $PSScriptRoot) -Force
+    Import-Module (Split-Path $PSScriptRoot) -Scope Local
     $OrgId = New-Guid
     $OrganizationName = "MyOrg"
 }
@@ -33,7 +33,7 @@ Describe "Get-NexusIQOrganization" {
         $Org.name | Should -Be $OrganizationName
     }
     It "Allows the user to pass the name parameter positionally" {
-        $Org = Get-NexusIQOrganization $OrganizationName 
+        $Org = Get-NexusIQOrganization $OrganizationName
         $Org | Should -Not -BeNullOrEmpty
     }
 }

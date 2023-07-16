@@ -1,0 +1,43 @@
+name: 1.0.0
+trigger:
+  paths:
+    exclude:
+      - .github
+      - .vscode/*
+resources:
+  repositories:
+    - repository: YAML-Templates
+      type: github
+      endpoint: variableresistor
+      name: variablesistor/NexusIQ
+pool:
+  vmImage: 'windows-latest'
+variables:
+  ModuleName: NexusIQ
+
+steps:
+  - checkout: self
+    path: ${{variables.ModuleName}}
+  - checkout: YAML-Templates
+
+  - template: powershell/register-psgallery.yml@YAML-Templates
+
+  - pwsh: |
+      $Separator = [System.IO.Path]::DirectorySeparatorChar
+      $SaveDir = "$env:APPDATA$Separator$env:ModuleName"
+      $AuthXmlPath = "$SaveDir$Separator`Auth.xml"
+      [pscredential]@{
+        BaseUrl = $env:BaseUrl
+        APIVersion = "V2"
+        Credential = [pscredential]::new($env:UserCode,$($env:PassCode | ConvertTo-SecureString -AsPlainText -Force))
+      } | Export-CliXml -Path $AuthXmlPath
+    displayName: Set up Nexus IQ connection profile
+    env:
+      UserCode: TestUserCode
+      PassCode: TestPassCode
+      ModuleName: ${{variables.ModuleName}}
+      BaseUrl: https://nexusiq.myorg.com
+
+  - template: powershell/run-tests.yml@YAML-Templates
+    parameters:
+      ModuleName: ${{variables.ModuleName}}

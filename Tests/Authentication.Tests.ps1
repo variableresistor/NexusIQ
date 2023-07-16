@@ -4,7 +4,7 @@
 param ()
 
 BeforeAll {
-    Import-Module (Split-Path $PSScriptRoot) -Force
+    Import-Module (Split-Path $PSScriptRoot) -Scope Local
     $Separator = [System.IO.Path]::DirectorySeparatorChar
     $SaveDir = "$env:APPDATA$Separator`PoshNexusIQ"
     $AuthXmlPath = "$SaveDir$Separator`Auth.xml"
@@ -13,7 +13,7 @@ BeforeAll {
 
     if (-not (Test-Path -Path $AuthXmlPath))
     {
-        Connect-NexusIQ -BaseUrl $BaseUrl -APIVersion v2 | Out-Null
+        Write-Error "You need to log into the application using Connect-NexusIq before continuing"
     }
     $Settings = Import-Clixml -Path $AuthXmlPath
 }
@@ -44,7 +44,7 @@ Describe "Connect-NexusIQ or Save-NexusIQLogin" {
             New-Item -Path $SaveDir -ItemType Directory | Out-Null
         }
         $Settings | Export-Clixml -Path $AuthXmlPath
-    }    
+    }
 }
 
 Describe "Disconnect-NexusIQ or Remove-NexusIQLogin" {
@@ -59,7 +59,7 @@ Describe "Disconnect-NexusIQ or Remove-NexusIQLogin" {
             New-Item -Path $SaveDir -ItemType Directory | Out-Null
         }
         $Settings | Export-Clixml -Path $AuthXmlPath
-    }    
+    }
 }
 
 Describe "Get-NexusIQSettings" {
