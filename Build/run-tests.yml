@@ -49,7 +49,7 @@ steps:
       Invoke-Pester @Splat
     displayName: 'Run Pester Tests'
     env:
-      ModuleName:
+      ModuleName: ${{parameters.ModuleName}}
       MinimumVersion: ${{parameters.MinimumPesterVersion}}
 
   - task: PublishTestResults@2
