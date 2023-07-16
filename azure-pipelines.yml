@@ -41,3 +41,19 @@ steps:
   - template: powershell/run-tests.yml@YAML-Templates
     parameters:
       ModuleName: ${{variables.ModuleName}}
+
+  - pwsh: |
+      $RootModulePath = "./NexusIQ.psm1"
+
+      "Put all the module files' content into a single file"
+      Set-Content -Path $RootModulePath -Value ""
+      $ModuleFiles = Get-ChildItem -File -Path $PSScriptRoot -Filter "*.psm1" -Exclude ([System.IO.Path]::GetFileName($RootModulePath))
+      ($ModuleFiles | Get-Content) -replace "using\smodule\s\.\\Base\.psm1","" | Add-Content -Path $RootModulePath
+
+      "Modify the module manifest to include only a single module file."
+      $ManifestFile = "./NexusIQ.psd1"
+      (Get-Content $ManifestFile) -replace "NestedModules\s\=\s@\(.*\)","NestedModules = @()" |
+      Set-Content -Path $ManifestFile
+      $ModuleFiles | Remove-Item -Verbose
+    workingDirectory: $(Pipeline.Workspace)/${{parameters.ModuleName}}
+    displayName: Consolidate the module files
