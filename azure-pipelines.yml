@@ -4,12 +4,6 @@ trigger:
     exclude:
       - .github
       - .vscode/*
-resources:
-  repositories:
-    - repository: YAML-Templates
-      type: github
-      endpoint: variableresistor
-      name: variablesistor/YAML-Templates
 pool:
   vmImage: 'windows-latest'
 variables:
@@ -18,9 +12,8 @@ variables:
 steps:
   - checkout: self
     path: ${{variables.ModuleName}}
-  - checkout: YAML-Templates
 
-  - template: powershell/register-psgallery.yml@YAML-Templates
+  - template: Build/register-psgallery.yml
 
   - pwsh: |
       $Separator = [System.IO.Path]::DirectorySeparatorChar
@@ -38,7 +31,7 @@ steps:
       ModuleName: ${{variables.ModuleName}}
       BaseUrl: https://nexusiq.myorg.com
 
-  - template: powershell/run-tests.yml@YAML-Templates
+  - template: Build/run-tests.yml
     parameters:
       ModuleName: ${{variables.ModuleName}}
 
