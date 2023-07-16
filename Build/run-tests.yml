@@ -1,11 +1,11 @@
 # Runs Pester tests
-parameters:
-  - name: ModuleName
-    type: string
-    displayName: Name of the PowerShell module to publish
-  - name: MinimumPesterVersion
-    type: string
-    default: 5.3.3
+# parameters:
+#   - name: ModuleName
+#     type: string
+#     displayName: Name of the PowerShell module to publish
+#   - name: MinimumPesterVersion
+#     type: string
+#     default: 5.3.3
 
 steps:
   - pwsh: |
@@ -22,7 +22,7 @@ steps:
       }
     displayName: 'Install Pester V${{parameters.MinimumPesterVersion}}+'
     env:
-      MinimumVersion: ${{parameters.MinimumPesterVersion}}
+      MinimumVersion: 5.3.3
 
   - pwsh: |
       Import-Module ./$env:ModuleName.psd1
@@ -49,13 +49,13 @@ steps:
       Invoke-Pester @Splat
     displayName: 'Run Pester Tests'
     env:
-      ModuleName: ${{parameters.ModuleName}}
-      MinimumVersion: ${{parameters.MinimumPesterVersion}}
+      ModuleName: $(ModuleName)
+      MinimumVersion: 5.3.3
 
   - task: PublishTestResults@2
     displayName: 'Publish Test Results'
     inputs:
-      testRunTitle: 'Test Results for ${{parameters.ModuleName}}'
+      testRunTitle: 'Test Results for $(ModuleName)'
       testRunner: NUnit
       testResultsFiles: '$(Agent.TempDirectory)/Pester/test-results.xml'
       failTaskOnFailedTests: true
@@ -74,6 +74,6 @@ steps:
       codeCoverageTool: Cobertura
       summaryFileLocation: '$(Agent.TempDirectory)/reports/Cobertura.xml'
       reportDirectory: '$(Agent.TempDirectory)/reports'
-      pathToSources: '$(Pipeline.Workspace)/${{parameters.ModuleName}}'
+      pathToSources: '$(Pipeline.Workspace)/$(ModuleName)'
     env:
       DISABLE_COVERAGE_AUTOGENERATE: 'true'
