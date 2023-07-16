@@ -9,7 +9,7 @@ resources:
     - repository: YAML-Templates
       type: github
       endpoint: variableresistor
-      name: variablesistor/NexusIQ
+      name: variablesistor/YAML-Templates
 pool:
   vmImage: 'windows-latest'
 variables:
