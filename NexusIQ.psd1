@@ -27,6 +27,7 @@ FunctionsToExport = @(
     "Get-NexusIQPolicyId"
     "Get-NexusIQPolicy"
     "Get-NexusIQPolicyViolation"
+    "Set-NexusIQApplication"
 )
 CmdletsToExport = @()
 # VariablesToExport = '*'
