@@ -6,7 +6,7 @@ trigger:
       - .vscode/*
       - Build/*
 pool:
-  vmImage: 'windows-latest'
+  name: Default
 variables:
   ModuleName: NexusIQ
 
