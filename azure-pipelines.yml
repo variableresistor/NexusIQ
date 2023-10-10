@@ -4,7 +4,7 @@ trigger:
     exclude:
       - .github
       - .vscode/*
-      - Build
+      - Build/*
 pool:
   vmImage: 'windows-latest'
 variables:
@@ -14,7 +14,16 @@ steps:
   - checkout: self
     path: ${{variables.ModuleName}}
 
-  - template: Build/register-psgallery.yml
+  # - template: Build/register-psgallery.yml
+  #   parameters:
+  #     ModuleName: ${{variables.ModuleName}}
+
+  - task: PowerShell@2
+    displayName: Register the PSGallery
+    inputs:
+      targetType: filePath
+      filePath: ./Register-PSGallery.ps1
+      workingDirectory: $(Pipeline.Workspace)/${{parameters.ModuleName}}/Build
 
   # Haven't been able to get the test to work. Mocking doesn't work right.
   # - pwsh: |
@@ -42,9 +51,19 @@ steps:
     inputs:
       targetType: filePath
       filePath: ./Build.ps1
-      workingDirectory: $(Pipeline.Workspace)/${{variables.ModuleName}}
+      workingDirectory: $(Pipeline.Workspace)/${{variables.ModuleName}}/Build
       informationPreference: continue
 
-  - template: Build/publish-module.yml
-    parameters:
-      ModuleName: ${{variables.ModuleName}}
+  # - template: Build/publish-module.yml
+  #   parameters:
+  #     ModuleName: ${{variables.ModuleName}}
+
+  - task: PowerShell@2
+    displayName: Publish the module
+    inputs:
+      targetType: filePath
+      filePath: ./Build/Publish-Module.ps1
+      workingDirectory: $(Pipeline.Workspace)/${{parameters.ModuleName}}
+    env:
+      ModuleName: ${{parameters.ModuleName}}
+      Version: $(Build.BuildNumber)
