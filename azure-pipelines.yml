@@ -42,7 +42,8 @@ steps:
     inputs:
       targetType: filePath
       filePath: ./Build.ps1
-      workingDirectory: $(Pipeline.Workspace)/${{parameters.ModuleName}}
+      workingDirectory: $(Pipeline.Workspace)/${{variables.ModuleName}}
+      informationPreference: continue
 
   - template: Build/publish-module.yml
     parameters:
