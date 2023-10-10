@@ -23,7 +23,7 @@ steps:
     inputs:
       targetType: filePath
       filePath: ./Register-PSGallery.ps1
-      workingDirectory: $(Pipeline.Workspace)/${{parameters.ModuleName}}/Build
+      workingDirectory: $(Pipeline.Workspace)/${{variables.ModuleName}}/Build
 
   # Haven't been able to get the test to work. Mocking doesn't work right.
   # - pwsh: |
@@ -63,7 +63,7 @@ steps:
     inputs:
       targetType: filePath
       filePath: ./Build/Publish-Module.ps1
-      workingDirectory: $(Pipeline.Workspace)/${{parameters.ModuleName}}
+      workingDirectory: $(Pipeline.Workspace)/${{variables.ModuleName}}
     env:
-      ModuleName: ${{parameters.ModuleName}}
+      ModuleName: ${{variables.ModuleName}}
       Version: $(Build.BuildNumber)
