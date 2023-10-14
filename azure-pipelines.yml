@@ -4,8 +4,14 @@ trigger:
     exclude:
       - .github
       - .vscode/*
+resources:
+  repositories:
+    - repository: YAML-Templates
+      type: github
+      endpoint: variableresistor
+      name: variableresistor/YAML-Templates
 pool:
-  vmImage: 'windows-latest'
+  name: Default
 variables:
   ModuleName: NexusIQ
 
@@ -13,40 +19,47 @@ steps:
   - checkout: self
     path: ${{variables.ModuleName}}
 
-  - template: Build/register-psgallery.yml
-
   - pwsh: |
       $Separator = [System.IO.Path]::DirectorySeparatorChar
       $SaveDir = "$env:APPDATA$Separator$env:ModuleName"
       $AuthXmlPath = "$SaveDir$Separator`Auth.xml"
       [pscredential]@{
         BaseUrl = $env:BaseUrl
-        APIVersion = "V2"
+        APIVersion = "v2"
         Credential = [pscredential]::new($env:UserCode,$($env:PassCode | ConvertTo-SecureString -AsPlainText -Force))
       } | Export-CliXml -Path $AuthXmlPath
-    displayName: Set up Nexus IQ connection profile
+    displayName: 'Set up Nexus IQ connection profile'
     env:
-      UserCode: TestUserCode
-      PassCode: TestPassCode
-      ModuleName: ${{variables.ModuleName}}
       BaseUrl: https://nexusiq.myorg.com
-
-  - template: Build/run-tests.yml
-    parameters:
       ModuleName: ${{variables.ModuleName}}
+      PassCode: TestPassCode
+      UserCode: TestUserCode
 
   - pwsh: |
-      $RootModulePath = "./NexusIQ.psm1"
+      $RootModulePath = "./$env:ModuleName.psm1"
 
       "Put all the module files' content into a single file"
       Set-Content -Path $RootModulePath -Value ""
-      $ModuleFiles = Get-ChildItem -File -Path $PSScriptRoot -Filter "*.psm1" -Exclude ([System.IO.Path]::GetFileName($RootModulePath))
+      $ModuleFiles = Get-ChildItem -File -Path $PSScriptRoot -Filter "*.psm1" | Where-Object -Property Name -ne ([System.IO.Path]::GetFileName($RootModulePath))
       ($ModuleFiles | Get-Content) -replace "using\smodule\s\.\\Base\.psm1","" | Add-Content -Path $RootModulePath
 
       "Modify the module manifest to include only a single module file."
-      $ManifestFile = "./NexusIQ.psd1"
+      $ManifestFile = "./$env:ModuleName.psd1"
       (Get-Content $ManifestFile) -replace "NestedModules\s\=\s@\(.*\)","NestedModules = @()" |
       Set-Content -Path $ManifestFile
       $ModuleFiles | Remove-Item -Verbose
+      Get-ChildItem -Directory | Remove-Item -Recurse -Verbose
+      $FilesToDelete = "azure-pipelines.yml"
+      Get-ChildItem -File -Recurse | Where -Property Name -in $FilesToDelete | Remove-Item -Verbose
+    displayName: 'Consolidate the module files'
     workingDirectory: $(Pipeline.Workspace)/${{variables.ModuleName}}
-    displayName: Consolidate the module files
+    env:
+      ModuleName: ${{variables.ModuleName}
+
+  - template: powershell/publish-module.yml@YAML-Templates
+    parameters:
+      ModuleName: ${{variables.ModuleName}}
+
+  - pwsh: git reset --hard && git clean -ffdx
+    displayName: 'Reset the working directory'
+    workingDirectory: $(Pipeline.Workspace)/${{variables.ModuleName}}
