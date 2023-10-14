@@ -66,7 +66,7 @@ filter Invoke-NexusIQAPI
 
 class NexusIQSettings
 {
-    static [String]$SaveDir = "$env:APPDATA$([System.IO.Path]::DirectorySeparatorChar)PoshNexusIQ"
+    static [String]$SaveDir = "$env:APPDATA$([System.IO.Path]::DirectorySeparatorChar)NexusIQ"
     static [String]$SavePath = "$([NexusIQSettings]::SaveDir)$([System.IO.Path]::DirectorySeparatorChar)Auth.xml"
 
     # Parameters

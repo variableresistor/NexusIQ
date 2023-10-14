@@ -6,7 +6,7 @@ param ()
 BeforeAll {
     Import-Module (Split-Path $PSScriptRoot) -Scope Local
     $Separator = [System.IO.Path]::DirectorySeparatorChar
-    $SaveDir = "$env:APPDATA$Separator`PoshNexusIQ"
+    $SaveDir = "$env:APPDATA$Separator`NexusIQ"
     $AuthXmlPath = "$SaveDir$Separator`Auth.xml"
 
     [uri]$BaseUrl = "https://nexusiq.myorg.com"
