@@ -87,3 +87,24 @@ Describe "Remove-NexusIQApplication" {
         Get-NexusIQApplication -ApplicationId $TempAppId -ErrorAction Ignore | Should -BeNullOrEmpty
     }
 }
+
+Describe "Set-NexusIQApplication" {
+    BeforeAll {
+        if (-not (Get-NexusIQApplication -PublicId $TempAppId -ErrorAction Ignore))
+        {
+            $Script:ReferenceApp = New-NexusIQApplication -PublicId $TempAppId -Name $TempAppName -OrganizationName $OrganizationName
+        }
+        else { $Script:ReferenceApp = Get-NexusIQApplication -PublicId $TempAppId }
+        $ReferenceApp | Set-NexusIQApplication -PublicId "$TempAppId-1" -Name "$TempAppName-1" | Out-Null
+        $ChangedApp = Get-NexusIQApplication -PublicId "$TempAppId-1"
+    }
+    It "Sets properties of an application" {
+        $ChangedApp.publicId | Should -Be "$TempAppId-1"
+        $ChangedApp.name | Should -Be "$TempAppName-1"
+    }
+    AfterAll {
+        Get-NexusIQApplication -PublicId $TempAppId,"$TempAppId-1" -ErrorAction Ignore | ForEach-Object -Process {
+            $_ | Remove-NexusIQApplication
+        }
+    }
+}

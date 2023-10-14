@@ -122,3 +122,31 @@ filter Remove-NexusIQApplication
     $Application = Get-NexusIQApplication -PublicId $PublicId -ErrorAction Stop
     Invoke-NexusIQAPI -Path "applications/$($Application.id)" -Method Delete
 }
+
+<#
+.SYNOPSIS
+    Set an Application's properties in Nexus IQ based on its "Public ID"
+.EXAMPLE
+    Get-NexusIQApplication -PublicId App1Id | Set-NexusIQApplication -PublicId App2Id -Name "This is my renamed app"
+.LINK
+    https://help.sonatype.com/iqserver/automating/rest-apis/application-rest-api---v2
+#>
+filter Set-NexusIQApplication
+{
+    [CmdletBinding()]
+    param (
+        # This is the application ID for the application. In the IQ Server GUI this is represented by the "Application" field. It must be unique., NOT the public Id
+        [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
+        [string]$Id,
+
+        # The new Public Id to set the application to
+        [string]$PublicId,
+
+        # The new name
+        [string]$Name
+    )
+    $IQApp = Invoke-NexusIQAPI -Path "applications/$Id"
+    if ($PublicId) { $IQApp.publicId = $PublicId }
+    if ($Name) { $IQApp.name = $Name }
+    Invoke-NexusIQAPI -Path "applications/$Id" -Body ($IQApp | ConvertTo-Json -Depth 99) -Method Put -ContentType "application/json"
+}

@@ -14,11 +14,13 @@ steps:
         Uninstall-Module -Name $env:ModuleName -AllVersion -Verbose
       }
       $env:ModulePath += ";$env:Pipeline_Workspace"
+      Get-ChildItem -Directory | Remove-Item -Recurse -Verbose
       Import-Module $env:ModuleName -Verbose -RequiredVersion $env:Version
 
-      Publish-Module -Name $env:ModuleName -Repository PSGallery -NuGetApiKey $(NuGetApiKey) -Verbose
+      # Publish-Module -Name $env:ModuleName -Repository PSGallery -NuGetApiKey $(NuGetApiKey) -Verbose
+      git reset --hard
     displayName: 'Publish the module'
     workingDirectory: $(Pipeline.Workspace)/${{parameters.ModuleName}}
     env:
-      Version: $(Build.BuildNumber)
       ModuleName: ${{parameters.ModuleName}}
+      Version: $(Build.BuildNumber)
