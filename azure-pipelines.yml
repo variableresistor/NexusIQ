@@ -20,14 +20,13 @@ steps:
     path: ${{variables.ModuleName}}
 
   - pwsh: |
-      $Separator = [System.IO.Path]::DirectorySeparatorChar
-      $SaveDir = "$env:APPDATA$Separator$env:ModuleName"
-      $AuthXmlPath = "$SaveDir$Separator`Auth.xml"
-      [pscredential]@{
+      Import-Module ./$env:ModuleName
+      $Splat = @{
         BaseUrl = $env:BaseUrl
         APIVersion = "v2"
         Credential = [pscredential]::new($env:UserCode,$($env:PassCode | ConvertTo-SecureString -AsPlainText -Force))
-      } | Export-CliXml -Path $AuthXmlPath
+      }
+      Connect-NexusIQ @Splat
     displayName: 'Set up Nexus IQ connection profile'
     env:
       BaseUrl: https://nexusiq.myorg.com
@@ -60,6 +59,12 @@ steps:
     parameters:
       ModuleName: ${{variables.ModuleName}}
 
-  - pwsh: git reset --hard && git clean -ffdx
-    displayName: 'Reset the working directory'
+  - pwsh: |
+      $Separator = [System.IO.Path]::DirectorySeparatorChar
+      "$env:APPDATA$Separator$env:ModuleName" | Remove-Item -Recurse -Verbose
+      git reset --hard && git clean -ffdx
+    displayName: 'Remove the credentials and reset the workspace'
+    condition: always()
     workingDirectory: $(Pipeline.Workspace)/${{variables.ModuleName}}
+    env:
+      ModuleName: ${{variables.ModuleName}}
