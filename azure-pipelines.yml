@@ -54,7 +54,7 @@ steps:
     displayName: 'Consolidate the module files'
     workingDirectory: $(Pipeline.Workspace)/${{variables.ModuleName}}
     env:
-      ModuleName: ${{variables.ModuleName}
+      ModuleName: ${{variables.ModuleName}}
 
   - template: powershell/publish-module.yml@YAML-Templates
     parameters:
