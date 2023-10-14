@@ -51,6 +51,5 @@ PrivateData = @{
     }
 }
 # HelpInfoURI = ''
-# DefaultCommandPrefix = ''S
 }
 

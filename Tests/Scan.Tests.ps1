@@ -15,7 +15,7 @@ Describe "Save-NexusIQCli" {
             Mac     = "nexus-iq-cli"
         }
         $Platform = "Windows"
-        $SaveDir = "$env:APPDATA$([System.IO.Path]::DirectorySeparatorChar)PoshNexusIQ"
+        $SaveDir = "$env:APPDATA$([System.IO.Path]::DirectorySeparatorChar)NexusIQ"
         $CliPath = "$SaveDir$([System.IO.Path]::DirectorySeparatorChar)$($CliName.Item($Platform))"
 
         if (Test-Path $CliPath) { Remove-Item $CliPath }

@@ -4,7 +4,12 @@ trigger:
     exclude:
       - .github
       - .vscode/*
-      - Build/*
+resources:
+  repositories:
+    - repository: YAML-Templates
+      type: github
+      endpoint: variableresistor
+      name: variableresistor/YAML-Templates
 pool:
   name: Default
 variables:
@@ -14,56 +19,52 @@ steps:
   - checkout: self
     path: ${{variables.ModuleName}}
 
-  # - template: Build/register-psgallery.yml
-  #   parameters:
-  #     ModuleName: ${{variables.ModuleName}}
+  - pwsh: |
+      Import-Module ./$env:ModuleName
+      $Splat = @{
+        BaseUrl = $env:BaseUrl
+        APIVersion = "v2"
+        Credential = [pscredential]::new($env:UserCode,$($env:PassCode | ConvertTo-SecureString -AsPlainText -Force))
+      }
+      Connect-NexusIQ @Splat
+    displayName: 'Set up Nexus IQ connection profile'
+    env:
+      BaseUrl: https://nexusiq.myorg.com
+      ModuleName: ${{variables.ModuleName}}
+      PassCode: TestPassCode
+      UserCode: TestUserCode
 
-  - task: PowerShell@2
-    displayName: Register the PSGallery
-    inputs:
-      targetType: filePath
-      filePath: ./Register-PSGallery.ps1
-      workingDirectory: $(Pipeline.Workspace)/${{variables.ModuleName}}/Build
+  - pwsh: |
+      $RootModulePath = "./$env:ModuleName.psm1"
 
-  # Haven't been able to get the test to work. Mocking doesn't work right.
-  # - pwsh: |
-  #     $Separator = [System.IO.Path]::DirectorySeparatorChar
-  #     $SaveDir = "$env:APPDATA$Separator$env:ModuleName"
-  #     $AuthXmlPath = "$SaveDir$Separator`Auth.xml"
-  #     [pscredential]@{
-  #       BaseUrl = $env:BaseUrl
-  #       APIVersion = "V2"
-  #       Credential = [pscredential]::new($env:UserCode,$($env:PassCode | ConvertTo-SecureString -AsPlainText -Force))
-  #     } | Export-CliXml -Path $AuthXmlPath
-  #   displayName: Set up Nexus IQ connection profile
-  #   env:
-  #     UserCode: TestUserCode
-  #     PassCode: TestPassCode
-  #     ModuleName: ${{variables.ModuleName}}
-  #     BaseUrl: https://nexusiq.myorg.com
+      "Put all the module files' content into a single file"
+      Set-Content -Path $RootModulePath -Value ""
+      $ModuleFiles = Get-ChildItem -File -Path $PSScriptRoot -Filter "*.psm1" | Where-Object -Property Name -ne ([System.IO.Path]::GetFileName($RootModulePath))
+      ($ModuleFiles | Get-Content) -replace "using\smodule\s\.\\Base\.psm1","" | Add-Content -Path $RootModulePath
 
-  # - template: Build/run-tests.yml
-  #   parameters:
-  #     ModuleName: ${{variables.ModuleName}}
-
-  - task: PowerShell@2
-    displayName: Run the build script
-    inputs:
-      targetType: filePath
-      filePath: ./Build.ps1
-      workingDirectory: $(Pipeline.Workspace)/${{variables.ModuleName}}/Build
-      informationPreference: continue
-
-  # - template: Build/publish-module.yml
-  #   parameters:
-  #     ModuleName: ${{variables.ModuleName}}
-
-  - task: PowerShell@2
-    displayName: Publish the module
-    inputs:
-      targetType: filePath
-      filePath: ./Build/Publish-Module.ps1
-      workingDirectory: $(Pipeline.Workspace)/${{variables.ModuleName}}
+      "Modify the module manifest to include only a single module file."
+      $ManifestFile = "./$env:ModuleName.psd1"
+      (Get-Content $ManifestFile) -replace "NestedModules\s\=\s@\(.*\)","NestedModules = @()" |
+      Set-Content -Path $ManifestFile
+      $ModuleFiles | Remove-Item -Verbose
+      Get-ChildItem -Directory | Remove-Item -Recurse -Verbose
+      $FilesToDelete = "azure-pipelines.yml"
+      Get-ChildItem -File -Recurse | Where -Property Name -in $FilesToDelete | Remove-Item -Verbose
+    displayName: 'Consolidate the module files'
+    workingDirectory: $(Pipeline.Workspace)/${{variables.ModuleName}}
     env:
       ModuleName: ${{variables.ModuleName}}
-      Version: $(Build.BuildNumber)
+
+  - template: powershell/publish-module.yml@YAML-Templates
+    parameters:
+      ModuleName: ${{variables.ModuleName}}
+
+  - pwsh: |
+      $Separator = [System.IO.Path]::DirectorySeparatorChar
+      "$env:APPDATA$Separator$env:ModuleName" | Remove-Item -Recurse -Verbose
+      git reset --hard && git clean -ffdx
+    displayName: 'Remove the credentials and reset the workspace'
+    condition: always()
+    workingDirectory: $(Pipeline.Workspace)/${{variables.ModuleName}}
+    env:
+      ModuleName: ${{variables.ModuleName}}
