@@ -36,9 +36,8 @@ filter Invoke-NexusIQAPI
         Uri=$Uri
         Method=$Method
     }
-    if ($PSEdition -eq "Core")
+    if ($PSVersionTable.PSVersion.Major -ge "6.0")
     {
-        $Splat.Add("NoProxy",([switch]::Present))
         $Splat.Add("Authentication","Basic")
         $Splat.Add("Credential",$Settings.Credential)
     }
