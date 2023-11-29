@@ -32,7 +32,7 @@ filter Get-NexusIQSettings
     Save-NexusIQLogin -BaseUrl https://nexusiq.mycompany.com
 .EXAMPLE
     # Reuse an existing profile's base URL and change the credentials
-    $Settings = Get-SonarQubeSettings
+    $Settings = Get-NexusIQSettings
     $Settings | Connect-NexusIQ -Credential (Get-Credential)
 #>
 filter Connect-NexusIQ

@@ -24,7 +24,7 @@ filter Find-NexusIQReport
     Get-NexusIQReport -ApplicationId MyApp1 -Stage stage-release
 .EXAMPLE
     Get-NexusIQApplication -ApplicationId MyApp1 | Get-NexusIQReport -Stage stage-release
-.LINK
+.NOTES
     https://help.sonatype.com/iqserver/automating/rest-apis/application-rest-api---v2#ApplicationRESTAPIv2-Step1-GettheOrganizationID
 #>
 filter Get-NexusIQReport

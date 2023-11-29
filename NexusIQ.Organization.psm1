@@ -6,7 +6,7 @@ using module .\Base.psm1
     Get-NexusIQOrganization -Name MyOrg
 .EXAMPLE
     "MyOrg1" | Get-NexusIQOrganization
-.LINK
+.NOTES
     https://help.sonatype.com/iqserver/automating/rest-apis/organizations-rest-api---v2
 #>
 filter Get-NexusIQOrganization
@@ -16,7 +16,7 @@ filter Get-NexusIQOrganization
         # Name of the organization
         [Parameter(ParameterSetName="Name",ValueFromPipeline,Position=0)]
         [string[]]$Name,
-        
+
         # Id of the organization
         [Parameter(ParameterSetName="Id",ValueFromPipelineByPropertyName)]
         [string[]]$Id

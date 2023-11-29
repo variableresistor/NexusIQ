@@ -26,7 +26,7 @@ filter Find-NexusIQApplication
     Get-NexusIQApplication -Name App1Name
 .EXAMPLE
     Get-NexusIQApplication -Name App1*
-.LINK
+.NOTES
     https://help.sonatype.com/iqserver/automating/rest-apis/application-rest-api---v2
 #>
 filter Get-NexusIQApplication
@@ -69,7 +69,7 @@ filter Get-NexusIQApplication
     Retrieves the Application in Nexus IQ based on its "Public ID"
 .EXAMPLE
     New-NexusIQApplication -ApplicationId AppId1 -Name "My Special App" -OrganizationName MyOrg
-.LINK
+.NOTES
     https://help.sonatype.com/iqserver/automating/rest-apis/application-rest-api---v2
 #>
 filter New-NexusIQApplication
@@ -106,7 +106,7 @@ filter New-NexusIQApplication
     Remove-NexusIQApplication -ApplicationId AppId1
 .EXAMPLE
     Get-NexusIQApplication -ApplicationId AppId1 | Remove-NexusIQApplication
-.LINK
+.NOTES
     https://help.sonatype.com/iqserver/automating/rest-apis/application-rest-api---v2
 #>
 filter Remove-NexusIQApplication
@@ -128,7 +128,7 @@ filter Remove-NexusIQApplication
     Set an Application's properties in Nexus IQ based on its "Public ID"
 .EXAMPLE
     Get-NexusIQApplication -PublicId App1Id | Set-NexusIQApplication -PublicId App2Id -Name "This is my renamed app"
-.LINK
+.NOTES
     https://help.sonatype.com/iqserver/automating/rest-apis/application-rest-api---v2
 #>
 filter Set-NexusIQApplication

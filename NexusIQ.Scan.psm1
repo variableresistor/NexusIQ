@@ -12,7 +12,7 @@ using module .\Base.psm1
     You can specify multiple scan targets ( directories or files) separated by spaces test/dir/*/*.jar test/*/*.ear
 .EXAMPLE
     Invoke-NexusIQScan -ApplicationId AppId1 -TargetDirectory "$env:USERPROFILE\MyRepo" -Target "**/*.dll"
-.LINK
+.NOTES
     https://help.sonatype.com/iqserver/integrations/nexus-iq-cli
 #>
 filter Invoke-NexusIQScan
@@ -64,7 +64,7 @@ $Target
     {
         . "$CliPath" --authentication "$($Settings.Credential.Username)`:$($Settings.Credential.GetNetworkCredential().Password)" @$ParamFileName
     }
-    
+
     Remove-Item $ParamFileName
     Pop-Location
 }
@@ -134,6 +134,6 @@ filter Save-NexusIQCli
         if (-not (Test-Path $CliPath)) { Write-Error "Something went wrong and the cli wasn't found"}
         else { Remove-Item $ArchivePath }
     }
-    
+
     if ($PassThru) { $CliPath }
 }

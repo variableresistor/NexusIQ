@@ -1,7 +1,7 @@
 using module .\Base.psm1
 <#
 .SYNOPSIS
-    Retrieves polices and their associated organizations or applications. Basically makes it easier for the user to look up policies by 
+    Retrieves polices and their associated organizations or applications. Basically makes it easier for the user to look up policies by
     doing all the heavy lifting under the hood.
 .EXAMPLE
     Get-NexusIQPolicy -Type Organization -Name MyOrg
@@ -9,7 +9,7 @@ using module .\Base.psm1
 .EXAMPLE
     Get-NexusIQPolicy -Type Application -Name MyApp1
     # Retrieves the policies of the specified application
-.LINK
+.NOTES
     https://help.sonatype.com/iqserver/automating/rest-apis/policy-violation-rest-api---v2#PolicyViolationRESTAPIv2-Step1-GetthePolicyIDs
 #>
 filter Get-NexusIQPolicy
@@ -58,7 +58,7 @@ filter Get-NexusIQPolicy
 .EXAMPLE
     $PolicyInfo = Get-NexusIQPolicyId
     Get-NexusIQPolicyViolation -PolicyId $PolicyInfo[0].id
-.LINK
+.NOTES
     https://help.sonatype.com/iqserver/automating/rest-apis/policy-violation-rest-api---v2#PolicyViolationRESTAPIv2-Step1-GetthePolicyIDs
 #>
 filter Get-NexusIQPolicyId
@@ -78,7 +78,7 @@ filter Get-NexusIQPolicyId
     Get-NexusIQPolicyViolation -PolicyId $PolicyInfo.id
 .EXAMPLE
     Get-NexusIQPolicyId | Where-Object -Property threatLevel -gt 5 | Get-NexusIQPolicyViolation
-.LINK
+.NOTES
     https://help.sonatype.com/iqserver/automating/rest-apis/policy-violation-rest-api---v2#PolicyViolationRESTAPIv2-Step2-GetthePolicyViolations
 #>
 filter Get-NexusIQPolicyViolation

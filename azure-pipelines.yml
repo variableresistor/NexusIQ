@@ -33,6 +33,7 @@ steps:
       ModuleName: ${{variables.ModuleName}}
       PassCode: TestPassCode
       UserCode: TestUserCode
+    enabled: false
 
   - pwsh: |
       $RootModulePath = "./$env:ModuleName.psm1"
