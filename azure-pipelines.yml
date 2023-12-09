@@ -19,7 +19,7 @@ steps:
   - checkout: self
     path: ${{variables.ModuleName}}
 
-  - pwsh: |
+  - powershell: |
       Import-Module ./$env:ModuleName
       $Splat = @{
         BaseUrl = $env:BaseUrl
@@ -34,7 +34,7 @@ steps:
       PassCode: TestPassCode
       UserCode: TestUserCode
 
-  - pwsh: |
+  - powershell: |
       $RootModulePath = "./$env:ModuleName.psm1"
 
       "Put all the module files' content into a single file"
@@ -59,7 +59,7 @@ steps:
     parameters:
       ModuleName: ${{variables.ModuleName}}
 
-  - pwsh: |
+  - powershell: |
       $Separator = [System.IO.Path]::DirectorySeparatorChar
       "$env:APPDATA$Separator$env:ModuleName" | Remove-Item -Recurse -Verbose
       git reset --hard && git clean -ffdx
