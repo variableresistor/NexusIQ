@@ -19,7 +19,7 @@ steps:
   - checkout: self
     path: ${{variables.ModuleName}}
 
-  - powershell: |
+  - pwsh: |
       Import-Module ./$env:ModuleName
       $Splat = @{
         BaseUrl = $env:BaseUrl
@@ -28,13 +28,14 @@ steps:
       }
       Connect-NexusIQ @Splat
     displayName: 'Set up Nexus IQ connection profile'
+    enabled: false
     env:
       BaseUrl: https://nexusiq.myorg.com
       ModuleName: ${{variables.ModuleName}}
       PassCode: TestPassCode
       UserCode: TestUserCode
 
-  - powershell: |
+  - pwsh: |
       $RootModulePath = "./$env:ModuleName.psm1"
 
       "Put all the module files' content into a single file"
@@ -59,11 +60,12 @@ steps:
     parameters:
       ModuleName: ${{variables.ModuleName}}
 
-  - powershell: |
+  - pwsh: |
       $Separator = [System.IO.Path]::DirectorySeparatorChar
       "$env:APPDATA$Separator$env:ModuleName" | Remove-Item -Recurse -Verbose
       git reset --hard && git clean -ffdx
     displayName: 'Remove the credentials and reset the workspace'
+    enabled: false
     condition: always()
     workingDirectory: $(Pipeline.Workspace)/${{variables.ModuleName}}
     env:
