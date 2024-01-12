@@ -52,6 +52,10 @@ Describe "Disconnect-NexusIQ or Remove-NexusIQLogin" {
         Disconnect-NexusIQ
         $AuthXmlPath | Should -Not -Exist
     }
+    It "Doesn't blow up if the profile doesn't exist" {
+        if (Test-Path $SaveDir) { Remove-Item $SaveDir -Recurse }
+        { Disconnect-NexusIQ -WarningAction SilentlyContinue } | Should -Not -Throw
+    }
 
     AfterEach {
         if (-not (Test-Path $SaveDir))

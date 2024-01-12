@@ -68,7 +68,14 @@ filter Disconnect-NexusIQ
     [CmdletBinding()]
     [Alias("Logout-NexusIQ","Remove-NexusIQLogin")]
     param ()
-    Remove-Item [NexusIQSettings]::SaveDir -Recurse
+    if (Test-Path ([NexusIQSettings]::SaveDir))
+    {
+        Remove-Item [NexusIQSettings]::SaveDir -Recurse
+    }
+    else
+    {
+        Write-Warning "The profile did not exist in path $([NexusIQSettings]::SaveDir)"
+    }
 }
 
 <#
