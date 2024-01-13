@@ -20,5 +20,5 @@ $env:PSModulePath += ";$(Split-Path $ModuleFolderPath)"
 Get-ChildItem -Directory | Remove-Item -Recurse -Verbose
 Import-Module $ModuleName -Verbose -RequiredVersion $Version
 
-# Publish-Module -Name $env:ModuleName -Repository PSGallery -NuGetApiKey $NuGetApiKey -Verbose
+# Publish-Module -Name $ModuleName -Repository PSGallery -NuGetApiKey $NuGetApiKey -Verbose
 git reset --hard
