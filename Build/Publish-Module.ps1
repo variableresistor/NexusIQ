@@ -19,6 +19,11 @@ if (Get-Module -Name $ModuleName -ListAvailable)
   Remove-Module -Name $ModuleName -ErrorAction SilentlyContinue
   Uninstall-Module -Name $ModuleName -AllVersions -Verbose
 }
-$env:PSModulePath += ";$TempDirectory/$ModuleName"
+$PathSeparator = switch (Test-Path Env:/Path)
+{
+  $true { ";" } # WIndows
+  $false { ";" } # Linux b/c it's all caps
+}
+$env:PSModulePath += "$PathSeparator$TempDirectory/$ModuleName"
 Import-Module $env:ModuleName -Verbose
 # Publish-Module -Name $ModuleName -Repository PSGallery -NuGetApiKey $env:NuGetApiKey -Verbose
