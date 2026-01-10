@@ -1,24 +1,36 @@
 [CmdletBinding()]
 param (
-  [ValidateNotNullOrEmpty()][string]$NuGetApiKey = $env:NuGetApiKey
+  [ValidateNotNullOrEmpty()]
+  [string]$NuGetApiKey = $env:NuGetApiKey,
+
+  [Parameter()]
+  [ValidateNotNullOrEmpty()]
+  [string]$ModuleName = $env:ModuleName,
+
+  [Parameter()]
+  [ValidateScript({Test-Path $_})]
+  [string]$TempDirectory = $env:AGENT_TEMPDIRECTORY,
+
+  [Parameter()]
+  [ValidateScript({Test-Path $_})]
+  [string]$SourcesDirectory = $env:BUILD_SOURCESDIRECTORY
 )
 $Script:ErrorActionPreference = 'Stop'
 Set-StrictMode -Version 1 # Just to be extra careful
 
-$ModuleFolderPath = (Split-Path $PSScriptRoot)
-$ModuleName = [System.IO.Path]::GetFileName($ModuleFolderPath)
-$Version = ((Get-Content "$ModuleFolderPath\azure-pipelines.yml" | Select-String -Pattern "name:\s\d" -Raw) -replace "name: ","").Trim()
-(Get-Content "$ModuleFolderPath\$ModuleName.psd1") -replace "ModuleVersion = '.*'","ModuleVersion = '$Version'" |
-Set-Content -Path "$ModuleFolderPath\$ModuleName.psd1" -PassThru
-
 if (Get-Module -Name $ModuleName -ListAvailable)
 {
   Remove-Module -Name $ModuleName -ErrorAction SilentlyContinue
-  Uninstall-Module -Name $ModuleName -AllVersion -Verbose
+  Uninstall-Module -Name $ModuleName -AllVersions -Verbose
 }
-$env:PSModulePath += ";$(Split-Path $ModuleFolderPath)"
-Get-ChildItem -Directory | Remove-Item -Recurse -Verbose
-Import-Module $ModuleName -Verbose -RequiredVersion $Version
-
-# Publish-Module -Name $ModuleName -Repository PSGallery -NuGetApiKey $NuGetApiKey -Verbose
-git reset --hard
+$Divider = switch (Test-Path Env:\Path)
+{
+  $true { ";" } # Windows
+  $false { ":" } # Linux
+}
+Set-Location $TempDirectory
+$env:PSModulePath += "$Divider$TempDirectory"
+Get-ChildItem -Path $SourcesDirectory | Remove-Item -Verbose -Recurse
+Resolve-Path "$TempDirectory/$ModuleName" | Import-Module -Verbose
+Get-Module -Name $ModuleName
+# Publish-Module -Name $ModuleName -Repository PSGallery -NuGetApiKey $env:NuGetApiKey -Verbose

@@ -1,5 +1,3 @@
-$ProviderName = "PowerShellGet"
-
 $AllPackageProviders = Get-PackageProvider
 if ($PSVersionTable.PSVersion -lt [version]"6.0")
 {
@@ -10,14 +8,15 @@ if ($PSVersionTable.PSVersion -lt [version]"6.0")
 
     if ("NuGet" -notin $AllPackageProviders.Name)
     {
-        Install-PackageProvider -Scope CurrentUser -Name "NuGet"
+        Install-PackageProvider -Scope CurrentUser -Name NuGet -Force -Verbose
+        $AllPackageProviders = Get-PackageProvider
     }
 }
 
-if ($ProviderName -notin $AllPackageProviders.Name)
+if ("PowerShellGet" -notin $AllPackageProviders.Name)
 {
-    "Didn't find the $ProviderName provider, so install the PackageManagement module that's included in PowerShellGet"
-    Install-PackageProvider -Name $ProviderName -Force -Verbose
+    "Didn't find the PowerShellGet provider, so install the PackageManagement module that's included in PowerShellGet"
+    Install-PackageProvider -Name PowerShellGet -Force -Verbose
     if (-not (Get-Module -Name PowerShellGet -ListAvailable))
     {
         Install-Module -Name PowerShellGet -Repository PSGallery -Scope CurrentUser -Force -Verbose

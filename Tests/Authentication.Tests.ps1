@@ -2,18 +2,18 @@
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', '',
     Justification='Suppress false positives in Pester code blocks')]
 param ()
-
 BeforeAll {
     Import-Module (Split-Path $PSScriptRoot) -Scope Local
     $Separator = [System.IO.Path]::DirectorySeparatorChar
-    $SaveDir = "$env:APPDATA$Separator`NexusIQ"
-    $AuthXmlPath = "$SaveDir$Separator`Auth.xml"
+    $UserHomeDir = if (Test-Path Env:\APPDATA) { $env:APPDATA } else { $HOME }
+    $SaveDir = "$UserHomeDir$([System.IO.Path]::DirectorySeparatorChar)NexusIQ"
+    $AuthXmlPath = "$SaveDir$($([System.IO.Path]::DirectorySeparatorChar))Auth.xml"
 
-    [uri]$BaseUrl = "https://nexusiq.myorg.com"
+    [uri]$BaseUrl = "https://nexusiq.mycompany.com"
 
     if (-not (Test-Path -Path $AuthXmlPath))
     {
-        Write-Error "You need to log into the application using Connect-NexusIq before continuing"
+        Connect-NexusIQ -BaseUrl $BaseUrl -APIVersion v2 | Out-Null
     }
     $Settings = Import-Clixml -Path $AuthXmlPath
 }
@@ -52,7 +52,7 @@ Describe "Disconnect-NexusIQ or Remove-NexusIQLogin" {
         Disconnect-NexusIQ
         $AuthXmlPath | Should -Not -Exist
     }
-    It "Doesn't blow up if the profile doesn't exist" {
+    It "Doesn't blow up if the profile doesn't exist at all" {
         if (Test-Path $SaveDir) { Remove-Item $SaveDir -Recurse }
         { Disconnect-NexusIQ -WarningAction SilentlyContinue } | Should -Not -Throw
     }
@@ -63,7 +63,7 @@ Describe "Disconnect-NexusIQ or Remove-NexusIQLogin" {
             New-Item -Path $SaveDir -ItemType Directory | Out-Null
         }
         $Settings | Export-Clixml -Path $AuthXmlPath
-    }
+    }    
 }
 
 Describe "Get-NexusIQSettings" {
