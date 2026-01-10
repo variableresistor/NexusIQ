@@ -71,7 +71,7 @@ steps:
 
   - pwsh: ./Build/Publish-Module.ps1
     displayName: Publish the module
-    condition: and(succeeded(),in(variables['Build.SourceBranchName'],'main','feature-1-1'))
+    condition: and(succeeded(),eq(variables['Build.SourceBranchName'],'main'))
     env:
       ModuleName: ${{variables.ModuleName}}
       NuGetApiKey: $(NuGetApiKey)

@@ -21,4 +21,4 @@ if (Get-Module -Name $ModuleName -ListAvailable)
 }
 Resolve-Path "$TempDirectory/$ModuleName" | Import-Module -Verbose
 Get-Module -Name $ModuleName
-# Publish-Module -Name $ModuleName -Repository PSGallery -NuGetApiKey $env:NuGetApiKey -Verbose
+Publish-Module -Name $ModuleName -Repository PSGallery -NuGetApiKey $env:NuGetApiKey -Verbose
