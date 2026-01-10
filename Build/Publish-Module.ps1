@@ -23,9 +23,9 @@ Resolve-Path "$TempDirectory/$ModuleName" | Import-Module -Verbose
 $ModuleInfo = Get-Module -Name $ModuleName
 $ModuleInfo
 "----Temp Directory-----"
-Get-ChildItem $TempDirectory | Select-Object -ExpandProperty Path
+Get-ChildItem $TempDirectory | Select-Object -ExpandProperty FullName
 "----Module Directory-----"
-Get-ChildItem "$TempDirectory/$ModuleName" | Select-Object -ExpandProperty Path
+Get-ChildItem "$TempDirectory/$ModuleName" | Select-Object -ExpandProperty FullName
 "----Imported Module Directory-----"
-Get-ChildItem (Split-Path $ModuleInfo) -Recurse | Select-Object -ExpandProperty Path
+Get-ChildItem (Split-Path $ModuleInfo) -Recurse | Select-Object -ExpandProperty FullName
 # Publish-Module -Name $ModuleName -Repository PSGallery -NuGetApiKey $env:NuGetApiKey -Verbose
