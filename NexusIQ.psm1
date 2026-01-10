@@ -791,8 +791,8 @@ filter Invoke-NexusIQAPI
 
 class NexusIQSettings
 {
-    static [String]$SaveDir = (Resolve-Path "$UserHomeFolder/PoshNexusIQ").Path
-    static [String]$SavePath = (Resolve-Path "$([NexusIQSettings]::SaveDir)/Auth.xml").Path
+    static [String]$SaveDir = "$UserHomeFolder$([System.IO.Path]::DirectorySeparatorChar)NexusIQ"
+    static [String]$SavePath = "$([NexusIQSettings]::SaveDir)$($([System.IO.Path]::DirectorySeparatorChar))Auth.xml"
 
     # Parameters
     [String]$BaseUrl

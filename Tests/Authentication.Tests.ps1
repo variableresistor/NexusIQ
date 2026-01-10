@@ -2,13 +2,12 @@
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', '',
     Justification='Suppress false positives in Pester code blocks')]
 param ()
-
 BeforeAll {
-    Import-Module (Split-Path $PSScriptRoot) -Force
+    Import-Module (Split-Path $PSScriptRoot) -Scope Local
     $Separator = [System.IO.Path]::DirectorySeparatorChar
     $UserHomeDir = if (Test-Path Env:\APPDATA) { $env:APPDATA } else { $HOME }
-    $SaveDir = "$UserHomeDir$Separator`PoshNexusIQ"
-    $AuthXmlPath = "$SaveDir$Separator`Auth.xml"
+    $SaveDir = "$UserHomeDir$([System.IO.Path]::DirectorySeparatorChar)NexusIQ"
+    $AuthXmlPath = "$SaveDir$($([System.IO.Path]::DirectorySeparatorChar))Auth.xml"
 
     [uri]$BaseUrl = "https://nexusiq.mycompany.com"
 
