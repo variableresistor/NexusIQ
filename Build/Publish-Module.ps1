@@ -20,5 +20,7 @@ if (Get-Module -Name $ModuleName -ListAvailable)
   Uninstall-Module -Name $ModuleName -AllVersions -Verbose
 }
 Resolve-Path "$TempDirectory/$ModuleName" | Import-Module -Verbose
-Get-Module -Name $ModuleName
-Publish-Module -Name $ModuleName -Repository PSGallery -NuGetApiKey $env:NuGetApiKey -Verbose
+$ModuleInfo = Get-Module -Name $ModuleName
+$ModuleInfo
+Get-ChildItem (Split-Path $ModuleInfo)
+# Publish-Module -Name $ModuleName -Repository PSGallery -NuGetApiKey $env:NuGetApiKey -Verbose
