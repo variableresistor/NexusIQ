@@ -33,4 +33,4 @@ $env:PSModulePath += "$Divider$TempDirectory"
 Get-ChildItem -Path $SourcesDirectory | Remove-Item -Verbose -Recurse
 Resolve-Path "$TempDirectory/$ModuleName" | Import-Module -Verbose
 Get-Module -Name $ModuleName
-# Publish-Module -Name $ModuleName -Repository PSGallery -NuGetApiKey $env:NuGetApiKey -Verbose
+Publish-Module -Name $ModuleName -Repository PSGallery -NuGetApiKey $env:NuGetApiKey -Verbose
