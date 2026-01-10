@@ -25,7 +25,8 @@ $Divider = switch (Test-Path Env:\Path)
   $false { ":" } # Linux
 }
 $env:PSModulePath += "$Divider$TempDirectory"
-$env:PSModulePath -split $Divider
+$env:PSModulePath
+$env:PSModulePath.Split($Divider)
 Resolve-Path "$TempDirectory/$ModuleName" | Import-Module -Verbose
 $ModuleInfo = Get-Module -Name $ModuleName
 $ModuleInfo
