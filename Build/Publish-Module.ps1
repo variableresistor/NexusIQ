@@ -22,5 +22,10 @@ if (Get-Module -Name $ModuleName -ListAvailable)
 Resolve-Path "$TempDirectory/$ModuleName" | Import-Module -Verbose
 $ModuleInfo = Get-Module -Name $ModuleName
 $ModuleInfo
-Get-ChildItem (Split-Path $ModuleInfo) -Recurse
+"----Temp Directory-----"
+Get-ChildItem $TempDirectory | Select-Object -ExpandProperty Path
+"----Module Directory-----"
+Get-ChildItem "$TempDirectory/$ModuleName" | Select-Object -ExpandProperty Path
+"----Imported Module Directory-----"
+Get-ChildItem (Split-Path $ModuleInfo) -Recurse | Select-Object -ExpandProperty Path
 # Publish-Module -Name $ModuleName -Repository PSGallery -NuGetApiKey $env:NuGetApiKey -Verbose
