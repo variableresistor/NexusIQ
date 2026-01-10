@@ -32,8 +32,5 @@ Set-Location $TempDirectory
 $env:PSModulePath += "$Divider$TempDirectory"
 Get-ChildItem -Path $SourcesDirectory | Remove-Item -Verbose -Recurse
 Resolve-Path "$TempDirectory/$ModuleName" | Import-Module -Verbose
-$ModuleInfo = Get-Module -Name $ModuleName
-$ModuleInfo
-$ModuleInfo | Select -ExpandProperty Path
+Get-Module -Name $ModuleName
 # Publish-Module -Name $ModuleName -Repository PSGallery -NuGetApiKey $env:NuGetApiKey -Verbose
-git -C $SourcesDirectory reset --hard
