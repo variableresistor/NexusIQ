@@ -13,7 +13,7 @@ param (
 
   [Parameter()]
   [ValidateScript({Test-Path $_})]
-  [string]$SourcesDirectory = $env:AGENT_TEMPDIRECTORY
+  [string]$SourcesDirectory = $env:AGENT_SOURCESDIRECTORY
 )
 $Script:ErrorActionPreference = 'Stop'
 Set-StrictMode -Version 1 # Just to be extra careful
