@@ -21,4 +21,4 @@ if (Get-Module -Name $ModuleName -ListAvailable)
 }
 $env:PSModulePath += ";$TempDirectory/$ModuleName"
 Import-Module $env:ModuleName -Verbose
-Publish-Module -Name $ModuleName -Repository PSGallery -NuGetApiKey $env:NuGetApiKey -Verbose
+# Publish-Module -Name $ModuleName -Repository PSGallery -NuGetApiKey $env:NuGetApiKey -Verbose

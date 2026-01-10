@@ -28,7 +28,6 @@ steps:
         Credential = [pscredential]::new($env:UserCode,$($env:PassCode | ConvertTo-SecureString -AsPlainText -Force))
       }
       Connect-NexusIQ @Splat
-      New-Item "$env:AGENT_TEMPDIRECTORY/$env:ModuleName" -ItemType Directory
     displayName: 'Set up Nexus IQ connection profile'
     env:
       BaseUrl: https://nexusiq.myorg.com
