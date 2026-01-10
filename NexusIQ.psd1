@@ -40,15 +40,12 @@ AliasesToExport = @(
 # ModuleList = @()
 PrivateData = @{
     PSData = @{
-        Tags = 'NexusIQ', 'Nexus', 'Sonatype'
+        Tags = 'NexusIQ', 'Nexus', 'PoshNexusIQ'
         LicenseUri = 'https://github.com/variableresistor/NexusIQ/blob/main/LICENSE'
         ProjectUri = 'https://github.com/variableresistor/NexusIQ'
-        # IconUri = ''
-        # ReleaseNotes = ''
-        # Prerelease = ''
-        # ExternalModuleDependencies = @()
+        IconUri = 'https://github.com/variableresistor/NexusIQ/blob/main/assets/icon.png'
+        ReleaseNotes = 'https://github.com/variableresistor/NexusIQ/blob/main/CHANGELOG.md'
     }
 }
 # HelpInfoURI = ''
 }
-
