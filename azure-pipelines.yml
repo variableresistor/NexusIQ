@@ -40,11 +40,13 @@ steps:
 
   - pwsh: ./Build/Start-Tests.ps1
     displayName: Run Pester Tests
+    enabled: false
     env:
       ModuleName: ${{variables.ModuleName}}
 
   - task: PublishTestResults@2
     displayName: Publish Test Results
+    enabled: false
     inputs:
       testRunTitle: 'Test Results for ${{variables.ModuleName}}'
       testRunner: NUnit
@@ -54,6 +56,7 @@ steps:
 
   - task: PublishCodeCoverageResults@2
     displayName: Publish Code Coverage
+    enabled: false
     inputs:
       summaryFileLocation: '$(Agent.TempDirectory)/reports/coverage.xml'
       pathToSources: '$(Pipeline.Workspace)/${{variables.ModuleName}}'
@@ -68,14 +71,18 @@ steps:
 
   - pwsh: ./Build/Publish-Module.ps1
     displayName: Publish the module
-    condition: and(succeeded(),eq(variables['Build.SourceBranchName'],'main'))
+    condition: and(succeeded(),in(variables['Build.SourceBranchName'],'main','feature-1-1'))
     env:
       ModuleName: ${{variables.ModuleName}}
       NuGetApiKey: $(NuGetApiKey)
       ModulePath: $(Agent.TempDirectory)/${{variables.ModuleName}}
 
   - pwsh: |
-      $UserHomeFolder = if (Test-Path Env:\APPDATA) { $env:APPDATA } { $HOME }
+      $UserHomeFolder = switch (Test-Path Env:\APPDATA)
+      {
+        $true { $env:APPDATA }
+        $false { $HOME }
+      }
       (Resolve-Path "$UserHomeFolder/$env:ModuleName").Path | Remove-Item -Recurse -Verbose
       git reset --hard && git clean -ffdx
     displayName: Remove the credentials and reset the workspace

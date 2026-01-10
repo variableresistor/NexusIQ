@@ -13,7 +13,7 @@ Set-StrictMode -Version 1
 #Requires -Modules @{ ModuleName="Pester"; ModuleVersion="5.0.0" }
 
 Import-Module "$env:BUILD_SOURCESDIRECTORY/$ModuleName.psd1" -Verbose
-$ResultsFolderPath = New-Item -Path $TempDirectory -Name Pester ItemType Directory | Select-Object -Expand FullName
+$ResultsFolderPath = New-Item -Path $TempDirectory ItemType Directory | Select-Object -Expand FullName
 
 $Config = New-PesterConfiguration
 $Config.CodeCoverage.Enabled = $true
