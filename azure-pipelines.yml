@@ -1,72 +1,85 @@
-name: 1.0.2
+# This is just a best-guess because there's no trial version of Nexus IQ Server to test against
 trigger:
   paths:
     exclude:
       - .github
       - .vscode/*
-resources:
-  repositories:
-    - repository: YAML-Templates
-      type: github
-      endpoint: variableresistor
-      name: variableresistor/YAML-Templates
 pool:
   name: Default
 variables:
   ModuleName: NexusIQ
 
 steps:
-  - checkout: self
-    path: ${{variables.ModuleName}}
+  - task: CopyFiles@2
+    displayName: Copy the module files to artifact staging directory
+    inputs:
+      SourceFolder: $(Build.SourcesDirectory)
+      Contents: |
+        NexusIQ.ps*
+        README.md
+        LICENSE
+      TargetFolder: $(Agent.TempDirectory)/${{variables.ModuleName}}
 
   - pwsh: |
-      Import-Module ./$env:ModuleName
+      Import-Module ./$env:ModuleName -Verbose
       $Splat = @{
         BaseUrl = $env:BaseUrl
         APIVersion = "v2"
         Credential = [pscredential]::new($env:UserCode,$($env:PassCode | ConvertTo-SecureString -AsPlainText -Force))
       }
       Connect-NexusIQ @Splat
+      New-Item "$env:AGENT_TEMPDIRECTORY/$env:ModuleName" -ItemType Directory
     displayName: 'Set up Nexus IQ connection profile'
-    enabled: false
     env:
       BaseUrl: https://nexusiq.myorg.com
+      UserCode: $(UserCode)
+      PassCode: $(PassCode)
       ModuleName: ${{variables.ModuleName}}
-      PassCode: TestPassCode
-      UserCode: TestUserCode
 
-  - pwsh: |
-      $RootModulePath = "./$env:ModuleName.psm1"
+  - pwsh: ./Build/Install-Pester.ps1
+    displayName: Install Pester V5
 
-      "Put all the module files' content into a single file"
-      Set-Content -Path $RootModulePath -Value ""
-      $ModuleFiles = Get-ChildItem -File -Path $PSScriptRoot -Filter "*.psm1" | Where-Object -Property Name -ne ([System.IO.Path]::GetFileName($RootModulePath))
-      ($ModuleFiles | Get-Content) -replace "using\smodule\s\.\\Base\.psm1","" | Add-Content -Path $RootModulePath
-
-      "Modify the module manifest to include only a single module file."
-      $ManifestFile = "./$env:ModuleName.psd1"
-      (Get-Content $ManifestFile) -replace "NestedModules\s\=\s@\(.*\)","NestedModules = @()" |
-      Set-Content -Path $ManifestFile
-      $ModuleFiles | Remove-Item -Verbose
-      Get-ChildItem -Directory | Remove-Item -Recurse -Verbose
-      $FilesToDelete = "azure-pipelines.yml"
-      Get-ChildItem -File -Recurse | Where -Property Name -in $FilesToDelete | Remove-Item -Verbose
-    displayName: 'Consolidate the module files'
-    workingDirectory: $(Pipeline.Workspace)/${{variables.ModuleName}}
+  - pwsh: ./Build/Start-Tests.ps1
+    displayName: Run Pester Tests
     env:
       ModuleName: ${{variables.ModuleName}}
 
-  - template: powershell/publish-module.yml@YAML-Templates
-    parameters:
+  - task: PublishTestResults@2
+    displayName: Publish Test Results
+    inputs:
+      testRunTitle: 'Test Results for ${{variables.ModuleName}}'
+      testRunner: NUnit
+      testResultsFiles: '$(Agent.TempDirectory)/Pester/test-results.xml'
+      failTaskOnFailedTests: true
+      mergeTestResults: true
+
+  - task: PublishCodeCoverageResults@2
+    displayName: Publish Code Coverage
+    inputs:
+      summaryFileLocation: '$(Agent.TempDirectory)/reports/coverage.xml'
+      pathToSources: '$(Pipeline.Workspace)/${{variables.ModuleName}}'
+
+  - pwsh: ./Build/Register-PSGallery.ps1
+    displayName: Register PSGallery
+
+  - task: UseDotNet@2
+    displayName: Use Dotnet 8.x
+    inputs:
+      version: 8.x
+
+  - pwsh: ./Build/Publish-Module.ps1
+    displayName: Publish the module
+    condition: and(succeeded(),eq(variables['Build.SourceBranchName'],'main'))
+    env:
       ModuleName: ${{variables.ModuleName}}
+      NuGetApiKey: $(NuGetApiKey)
+      ModulePath: $(Agent.TempDirectory)/${{variables.ModuleName}}
 
   - pwsh: |
-      $Separator = [System.IO.Path]::DirectorySeparatorChar
-      "$env:APPDATA$Separator$env:ModuleName" | Remove-Item -Recurse -Verbose
+      $UserHomeFolder = if (Test-Path Env:\APPDATA) { $env:APPDATA } { $HOME }
+      (Resolve-Path "$UserHomeFolder/$env:ModuleName").Path | Remove-Item -Recurse -Verbose
       git reset --hard && git clean -ffdx
-    displayName: 'Remove the credentials and reset the workspace'
-    enabled: false
+    displayName: Remove the credentials and reset the workspace
     condition: always()
-    workingDirectory: $(Pipeline.Workspace)/${{variables.ModuleName}}
     env:
       ModuleName: ${{variables.ModuleName}}

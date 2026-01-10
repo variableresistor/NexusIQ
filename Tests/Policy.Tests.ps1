@@ -4,9 +4,9 @@
 param ()
 
 BeforeAll {
-    Import-Module (Split-Path $PSScriptRoot) -Scope Local
-    $AppName = "MyAppId"
-    $OrganizationName = "Org1"
+    Import-Module (Split-Path $PSScriptRoot) -Force
+    $AppName = "App1"
+    $OrganizationName = "MyOrg"
 }
 
 Describe "Get-NexusIQPolicy" {
