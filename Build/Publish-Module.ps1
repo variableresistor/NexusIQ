@@ -22,5 +22,5 @@ if (Get-Module -Name $ModuleName -ListAvailable)
 Resolve-Path "$TempDirectory/$ModuleName" | Import-Module -Verbose
 $ModuleInfo = Get-Module -Name $ModuleName
 $ModuleInfo
-Get-ChildItem (Split-Path $ModuleInfo)
+Get-ChildItem (Split-Path $ModuleInfo) -Recurse
 # Publish-Module -Name $ModuleName -Repository PSGallery -NuGetApiKey $env:NuGetApiKey -Verbose
