@@ -34,7 +34,6 @@ Get-ChildItem -Path $SourcesDirectory | Remove-Item -Verbose -Recurse
 Resolve-Path "$TempDirectory/$ModuleName" | Import-Module -Verbose
 $ModuleInfo = Get-Module -Name $ModuleName
 $ModuleInfo
-"----Imported Module Directory-----"
-Get-ChildItem (Split-Path $ModuleInfo) -Recurse | Select-Object -ExpandProperty FullName
+$ModuleInfo | Select -ExpandProperty Path
 # Publish-Module -Name $ModuleName -Repository PSGallery -NuGetApiKey $env:NuGetApiKey -Verbose
 git -C $SourcesDirectory reset --hard
