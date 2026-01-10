@@ -84,7 +84,7 @@ steps:
         $false { $HOME }
       }
       (Resolve-Path "$UserHomeFolder/$env:ModuleName").Path | Remove-Item -Recurse -Verbose
-      git -C $env:AGENT_SOURCESDIRECTORY reset --hard
+      git -C $env:BUILD_SOURCESDIRECTORY reset --hard
     displayName: Remove the credentials
     condition: always()
     env:
