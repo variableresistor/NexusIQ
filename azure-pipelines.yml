@@ -2,8 +2,9 @@
 trigger:
   paths:
     exclude:
-      - .github
+      - .github/*
       - .vscode/*
+      - '*.md'
 pool:
   name: Default
 variables:
